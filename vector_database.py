@@ -6,6 +6,7 @@ from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
+import os 
 
 
 #------------------------------------------
@@ -15,8 +16,10 @@ from langchain_community.vectorstores import FAISS
 pdfs_directory = "pdfs/"
 
 def upload_pdf(file):
-    with open(pdfs_directory + file.name , "wb") as f:
+    file_path = os.path.join(pdfs_directory, file.name)
+    with open(file_path , "wb") as f:
         f.write(file.getbuffer())
+    return file_path
 
 def load_pdf(file_path):
     loader = PDFPlumberLoader(file_path=file_path)
@@ -53,12 +56,22 @@ def get_embeddings_model():
 #------------------------------------------
 
 
-documents = load_pdf('pdfs/sample_pdf_file.pdf')
-print("Len of Document :- " , len(documents))
-text_chunks = create_chunks(documents)
-print("Chunk Count :- " , len(text_chunks))
-FAISS_DB_PATH = "vectorstore/db_faiss"
-faiss_db = FAISS.from_documents(text_chunks , get_embeddings_model())
-faiss_db.save_local(FAISS_DB_PATH)
+# documents = load_pdf('pdfs/sample_pdf_file.pdf')
+# print("Len of Document :- " , len(documents))
+# text_chunks = create_chunks(documents)
+# print("Chunk Count :- " , len(text_chunks))
+# FAISS_DB_PATH = "vectorstore/db_faiss"
+# faiss_db = FAISS.from_documents(text_chunks , get_embeddings_model())
+# faiss_db.save_local(FAISS_DB_PATH)
 
 
+def make_chunk_embeddings_store_vectordb(documents):
+  
+    print("Len of Document :- " , len(documents))
+    text_chunks = create_chunks(documents)
+    print("Chunk Count :- " , len(text_chunks))
+    FAISS_DB_PATH = "vectorstore/db_faiss"
+    faiss_db = FAISS.from_documents(text_chunks , get_embeddings_model())
+    faiss_db.save_local(FAISS_DB_PATH)
+    print("Data saved --------------------------------------------------------------------")
+    return faiss_db
